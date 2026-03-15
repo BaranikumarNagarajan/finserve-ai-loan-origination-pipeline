@@ -1,0 +1,829 @@
+{
+  "name": "FinServe-AI-Loan-Origination-Pipeline",
+  "nodes": [
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "13033322-646e-4cb4-afe0-c15e4714af1a",
+              "name": "=applicant_name",
+              "value": "={{ $json['Applicant Name'] }}",
+              "type": "string"
+            },
+            {
+              "id": "3378c621-d885-4da0-acc1-aef0a388e2b4",
+              "name": "company_name",
+              "value": "={{ $json['Company Name'] }}",
+              "type": "string"
+            },
+            {
+              "id": "f63fced7-82f7-450b-9fa4-3f8123afb8e9",
+              "name": " loan_amount",
+              "value": "={{ $json['Loan Amount Requested'] }}",
+              "type": "string"
+            },
+            {
+              "id": "a3b5c873-9e56-4ee8-8de9-b51345d53cd0",
+              "name": " monthly_revenue",
+              "value": "={{ $json['Monthly Revenue'] }}",
+              "type": "string"
+            },
+            {
+              "id": "580d6081-647e-4227-aa0e-ad459f02e82b",
+              "name": "years_in_business",
+              "value": "={{ $json['Years in Business'] }}",
+              "type": "string"
+            },
+            {
+              "id": "18947e1c-47ad-4504-aa05-6b3cc4a99dbf",
+              "name": "=business_type",
+              "value": "={{ $json['Business Type'] }}",
+              "type": "string"
+            },
+            {
+              "id": "a3517053-08f5-43ec-9f9f-15f60237fd86",
+              "name": "=email",
+              "value": "={{ $json['Email'] }}",
+              "type": "string"
+            },
+            {
+              "id": "202e3b11-355b-411b-b314-c756a61e833c",
+              "name": "purpose",
+              "value": "={{ $json['Purpose'] }}",
+              "type": "string"
+            },
+            {
+              "id": "191d38ca-525b-40df-b2da-1ceb1a648031",
+              "name": "=country",
+              "value": "={{ $json['Country'] }}",
+              "type": "string"
+            },
+            {
+              "id": "0e2dfed3-1cbd-4468-83c1-1174bf35e61d",
+              "name": "= currency",
+              "value": "={{ $json['Currency'] }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "48d25f62-fa00-444a-83df-c7c44a58bac5",
+      "name": "Edit Fields",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -760,
+        40
+      ]
+    },
+    {
+      "parameters": {
+        "model": "llama3.2:3b",
+        "options": {}
+      },
+      "id": "b046061f-ab2a-45f5-9e76-0159577ad8a8",
+      "name": "Ollama Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        -460,
+        260
+      ],
+      "credentials": {
+        "ollamaApi": {
+          "id": "kXRn1Fv0hIEf5T7N",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "57463578-a62f-47e6-9bac-7f6cfa0591af",
+              "leftValue": "{{ $json.output.recommendation }}",
+              "rightValue": "REJECT",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "93f12ebe-c184-4fd2-8a3a-e1bd9d05aeac",
+      "name": "If",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        120,
+        40
+      ]
+    },
+    {
+      "parameters": {
+        "model": "llama3.2:3b",
+        "options": {}
+      },
+      "id": "be515d55-abec-407c-9b4a-24500941b7db",
+      "name": "Ollama Chat Model1",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        -80,
+        500
+      ],
+      "credentials": {
+        "ollamaApi": {
+          "id": "HywZDSiKSKP4l5NT",
+          "name": "Ollama account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1_bjqq_f7HuFqEk1JhJOSedQUC0RUD4yHAyIoWSiOMEk/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "url",
+          "value": "https://docs.google.com/spreadsheets/d/1_bjqq_f7HuFqEk1JhJOSedQUC0RUD4yHAyIoWSiOMEk/edit#gid=0",
+          "__regex": "https:\\/\\/docs\\.google.com\\/spreadsheets\\/d\\/[0-9a-zA-Z\\-_]+.*\\#gid=([0-9]+)"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Timestamp": "={{ $('Code1').first().json.Timestamp }}",
+            "Applicant_name": "={{ $('Code1').first().json.Applicant_name }}",
+            "Business_type": "={{ $('Code1').first().json.Business_type }}",
+            "Company_name": "={{ $('Code1').first().json.Company_name }}",
+            "Country": "={{ $('Code1').first().json.Country }}",
+            "Currency": "={{ $('Code1').first().json.Currency }}",
+            "Loan amount": "={{ $('Code1').first().json.Loan_amount }}",
+            "Monthly_revenue": "={{ $('Code1').first().json.Monthly_revenue }}",
+            "Lead_score": "={{ $('Code1').first().json.Lead_score }}",
+            "Risk_level": "={{ $('Code1').first().json.Risk_level }}",
+            "Recommendation": "={{ $('Code1').first().json.Recommendation }}",
+            "Final_Decision": "={{ $('Code1').first().json.Final_Decision }}",
+            "Required_docs": "={{ $('Code1').first().json.Required_docs }}",
+            "Email": "={{ $('Code1').first().json.Email }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Applicant_name",
+              "displayName": "Applicant_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Company_name",
+              "displayName": "Company_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Business_type",
+              "displayName": "Business_type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Country",
+              "displayName": "Country",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Currency",
+              "displayName": "Currency",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Loan amount",
+              "displayName": "Loan amount",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Monthly_revenue",
+              "displayName": "Monthly_revenue",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Lead_score",
+              "displayName": "Lead_score",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Risk_level",
+              "displayName": "Risk_level",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Recommendation",
+              "displayName": "Recommendation",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Final_Decision",
+              "displayName": "Final_Decision",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Required_docs",
+              "displayName": "Required_docs",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ]
+        },
+        "options": {
+          "useAppend": true
+        }
+      },
+      "id": "42835617-eda4-4d37-a9dc-64ac11fc2157",
+      "name": "Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        1300,
+        280
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "pOJnnyk7nq3YUY4N",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const webhook = $('On form submission').first().json;\nconst rawOutput = $('Lead Scoring').first().json.output;\nconst creditMemo = $('Credit Memo').first().json.output;\n\nlet aiOutput = {};\ntry {\n  const cleaned = rawOutput\n    .replace(/```json/g, '')\n    .replace(/```/g, '')\n    .replace(/\\n/g, ' ')\n    .trim();\n  aiOutput = JSON.parse(cleaned);\n} catch(e) {\n  aiOutput = {\n    score: 'N/A',\n    recommendation: 'N/A',\n    reason: 'N/A',\n    risk_level: 'N/A'\n  };\n}\n\nlet finalDecision = 'N/A';\nif (creditMemo.includes('APPROVE') && !creditMemo.includes('MORE_INFO') && !creditMemo.includes('REJECT')) {\n  finalDecision = 'APPROVED';\n} else if (creditMemo.includes('REJECT')) {\n  finalDecision = 'REJECTED';\n} else if (creditMemo.includes('MORE_INFO')) {\n  finalDecision = 'PENDING - DOCS REQUIRED';\n}\n\nlet requiredDocs = 'N/A';\nif (finalDecision === 'PENDING - DOCS REQUIRED') {\n  const docsMatch = creditMemo.match(/Required Documents:([\\s\\S]*?)(?:Follow up:|Credit Officer:|$)/);\n  if (docsMatch) {\n    requiredDocs = docsMatch[1].trim();\n  }\n}\n\nconst currencyRaw = webhook['Currency'];\nconst currency = Array.isArray(currencyRaw)\n  ? currencyRaw[0]\n  : (currencyRaw || '');\n\nconst formattedDate = new Date().toLocaleDateString('en-GB', {\n  day: '2-digit',\n  month: '2-digit',\n  year: 'numeric'\n});\n\nreturn [{\n  json: {\n    Timestamp: formattedDate,\n    Applicant_name: webhook['Applicant Name'] || 'N/A',\n    Company_name: webhook['Company Name'] || 'N/A',\n    Business_type: webhook['Business Type'] || 'N/A',\n    Country: webhook['Country'] || 'N/A',\n    Currency: currency,\n    Loan_amount: currency + ' ' + (webhook['Loan Amount Requested'] || 'N/A'),\n    Monthly_revenue: currency + ' ' + (webhook['Monthly Revenue'] || 'N/A'),\n    Lead_score: aiOutput.score || 'N/A',\n    Risk_level: aiOutput.risk_level || 'N/A',\n    Recommendation: aiOutput.recommendation || 'N/A',\n    Final_Decision: finalDecision,\n    Required_docs: requiredDocs,\n    Email: webhook['Email'] || 'N/A'\n  }\n}];"
+      },
+      "id": "79af418d-c653-4801-a4b0-8de912489ee1",
+      "name": "Code1",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        280,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "2bcaccd7-6775-4f4a-97eb-6274d2b203a3",
+                    "leftValue": "={{ $json.Final_Decision }} ",
+                    "rightValue": "APPROVED",
+                    "operator": {
+                      "type": "string",
+                      "operation": "contains"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "06f425a8-c779-46fe-be7e-fbce79cbd80f",
+                    "leftValue": "={{ $json.Final_Decision }}",
+                    "rightValue": "REJECTED",
+                    "operator": {
+                      "type": "string",
+                      "operation": "contains"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "c03a1aae-bd89-4667-a4ea-ff4c5e70f802",
+                    "leftValue": "={{ $json.Final_Decision }}",
+                    "rightValue": "PENDING",
+                    "operator": {
+                      "type": "string",
+                      "operation": "contains"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "looseTypeValidation": true,
+        "options": {
+          "allMatchingOutputs": false
+        }
+      },
+      "id": "5e3931a1-9b2e-4dd6-8385-ec8d98033c97",
+      "name": "Switch",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        540,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('On form submission').first().json['Email'] }}",
+        "subject": "Additional Information Required - FinServe",
+        "message": "=<div style=\"font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;\">\n<p>Dear <strong>{{ $('On form submission').first().json['Applicant Name'] }}</strong>,</p>\n<p>Thank you for your interest in FinServe lending services.</p>\n<p>We have completed an initial review and are pleased to move forward. However, to complete our assessment, we require the following documents:</p>\n<table border=\"1\" cellpadding=\"10\" cellspacing=\"0\" style=\"border-collapse:collapse; width:100%;\">\n<tr style=\"background:#003366; color:white;\">\n<td><strong>Application Details</strong></td><td></td>\n</tr>\n<tr>\n<td><strong>Company</strong></td>\n<td>{{ $('On form submission').first().json['Company Name'] }}</td>\n</tr>\n<tr style=\"background:#f9f9f9;\">\n<td><strong>Loan Amount</strong></td>\n<td>{{ $('On form submission').first().json['Currency'] }} {{ $('On form submission').first().json['Loan Amount Requested'] }}</td>\n</tr>\n<tr>\n<td><strong>Country</strong></td>\n<td>{{ $('On form submission').first().json['Country'] }}</td>\n</tr>\n<tr style=\"background:#f9f9f9;\">\n<td><strong>Status</strong></td>\n<td>⏳ PENDING — Documents Required</td>\n</tr>\n</table>\n<br>\n<table border=\"1\" cellpadding=\"10\" cellspacing=\"0\" style=\"border-collapse:collapse; width:100%;\">\n<tr style=\"background:#003366; color:white;\">\n<td><strong>Required Documents</strong></td>\n</tr>\n<tr>\n<td>{{ $('Code1').first().json.Required_docs }}</td>\n</tr>\n</table>\n<br>\n<p>Please submit within <strong>7 business days</strong> to avoid delays.</p>\n<p>Reply to this email or contact: <a href=\"mailto:support@finserve.com\">support@finserve.com</a></p>\n<p>We look forward to supporting your business growth.</p>\n<p>Warm regards,<br>\n<strong>FinServe Credit Team</strong><br>\n📧 support@finserve.com<br>\n🌐 www.finserve.com</p>\n</div>",
+        "options": {}
+      },
+      "id": "fe95b9fd-3b7d-4677-954d-02770aef18b8",
+      "name": "More Info",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        880,
+        500
+      ],
+      "webhookId": "710152c7-4623-4000-8001-81dd1036c665",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "nIH9N46DkICSh3nV",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('On form submission').first().json['Email'] }}",
+        "subject": "Loan Application Update - FinServe",
+        "message": "=<div style=\"font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;\">\n<p>Dear <strong>{{ $('On form submission').first().json['Applicant Name'] }}</strong>,</p>\n<p>Thank you for your interest in FinServe lending services.</p>\n<table border=\"1\" cellpadding=\"10\" cellspacing=\"0\" style=\"border-collapse:collapse; width:100%;\">\n<tr style=\"background:#003366; color:white;\">\n<td><strong>Application Details</strong></td><td></td>\n</tr>\n<tr>\n<td><strong>Company</strong></td>\n<td>{{ $('On form submission').first().json['Company Name'] }}</td>\n</tr>\n<tr style=\"background:#f9f9f9;\">\n<td><strong>Loan Amount</strong></td>\n<td>{{ $('On form submission').first().json['Currency'] }} {{ $('On form submission').first().json['Loan Amount Requested'] }}</td>\n</tr>\n<tr>\n<td><strong>Country</strong></td>\n<td>{{ $('On form submission').first().json['Country'] }}</td>\n</tr>\n<tr style=\"background:#f9f9f9;\">\n<td><strong>Status</strong></td>\n<td>❌ DECLINED</td>\n</tr>\n</table>\n<br>\n<p>After careful review of your application, we regret that we are unable to proceed at this time.</p>\n<p>You are welcome to reapply after <strong>6 months</strong>.</p>\n<p>For queries: <a href=\"mailto:support@finserve.com\">support@finserve.com</a></p>\n<p>Warm regards,<br>\n<strong>FinServe Credit Team</strong><br>\n📧 support@finserve.com<br>\n🌐 www.finserve.com</p>\n</div>",
+        "options": {}
+      },
+      "id": "cb5bfa70-d573-41c0-bca6-6408a76527bb",
+      "name": "Declined",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        860,
+        320
+      ],
+      "webhookId": "423d226d-1328-4020-8fb3-2cfcf9b9af1e",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "nIH9N46DkICSh3nV",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('On form submission').first().json['Email'] }}",
+        "subject": "Loan Application Approved - FinServe",
+        "message": "=<div style=\"font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;\">\n<p>Dear <strong>{{ $('On form submission').first().json['Applicant Name'] }}</strong>,</p>\n<p>Congratulations! 🎉 We are pleased to inform you that your loan application has been <strong>approved</strong>.</p>\n<table border=\"1\" cellpadding=\"10\" cellspacing=\"0\" style=\"border-collapse:collapse; width:100%;\">\n<tr style=\"background:#003366; color:white;\">\n<td><strong>Application Details</strong></td><td></td>\n</tr>\n<tr>\n<td><strong>Company</strong></td>\n<td>{{ $('On form submission').first().json['Company Name'] }}</td>\n</tr>\n<tr style=\"background:#f9f9f9;\">\n<td><strong>Loan Amount</strong></td>\n<td>{{ $('On form submission').first().json['Currency'] }} {{ $('On form submission').first().json['Loan Amount Requested'] }}</td>\n</tr>\n<tr>\n<td><strong>Country</strong></td>\n<td>{{ $('On form submission').first().json['Country'] }}</td>\n</tr>\n<tr style=\"background:#f9f9f9;\">\n<td><strong>Status</strong></td>\n<td>✅ APPROVED</td>\n</tr>\n</table>\n<br>\n<p>Our relationship manager will contact you within <strong>2 business days</strong> with next steps.</p>\n<p>Thank you for choosing FinServe.</p>\n<p>For queries: <a href=\"mailto:support@finserve.com\">support@finserve.com</a></p>\n<p>Warm regards,<br>\n<strong>FinServe Credit Team</strong><br>\n📧 support@finserve.com<br>\n🌐 www.finserve.com</p>\n</div>",
+        "options": {}
+      },
+      "id": "bac22f9c-5763-4d67-a411-fd5ff81f8316",
+      "name": "Approved",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        840,
+        100
+      ],
+      "webhookId": "05173268-abaf-4fb9-9830-853f4fea5e83",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "nIH9N46DkICSh3nV",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('On form submission').first().json['Email'] }}",
+        "subject": "Loan Application Status - FinServe",
+        "message": "=<div style=\"font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;\">\n<p>Dear <strong>{{ $('On form submission').first().json['Applicant Name'] }}</strong>,</p>\n<p>Thank you for your interest in FinServe lending services.</p>\n<table border=\"1\" cellpadding=\"10\" cellspacing=\"0\" style=\"border-collapse:collapse; width:100%;\">\n<tr style=\"background:#003366; color:white;\">\n<td><strong>Application Details</strong></td><td></td>\n</tr>\n<tr>\n<td><strong>Company</strong></td>\n<td>{{ $('On form submission').first().json['Company Name'] }}</td>\n</tr>\n<tr style=\"background:#f9f9f9;\">\n<td><strong>Loan Amount</strong></td>\n<td>{{ $('On form submission').first().json['Currency'] }} {{ $('On form submission').first().json['Loan Amount Requested'] }}</td>\n</tr>\n<tr>\n<td><strong>Country</strong></td>\n<td>{{ $('On form submission').first().json['Country'] }}</td>\n</tr>\n<tr style=\"background:#f9f9f9;\">\n<td><strong>Status</strong></td>\n<td>❌ DECLINED</td>\n</tr>\n</table>\n<br>\n<p>After careful review, we are unable to proceed with your application at this time.</p>\n<p>You are welcome to reapply after <strong>6 months</strong>.</p>\n<p>For queries: <a href=\"mailto:support@finserve.com\">support@finserve.com</a></p>\n<p>Warm regards,<br>\n<strong>FinServe Credit Team</strong><br>\n📧 support@finserve.com<br>\n🌐 www.finserve.com</p>\n</div>",
+        "options": {}
+      },
+      "id": "c177b0ae-ba49-40f7-ad36-e4dab56ed4fc",
+      "name": "Gmail",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        820,
+        -100
+      ],
+      "webhookId": "6be4120d-9e9b-4f75-8c70-83fcab35bbe3",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "nIH9N46DkICSh3nV",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "formTitle": "FinServe Loan Application",
+        "formDescription": "Please fill in your details to apply for a loan",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Applicant Name",
+              "placeholder": "e.g. John Smith",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Company Name",
+              "placeholder": "e.g. ABC Trading Pvt Ltd",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Business Type",
+              "placeholder": "e.g. Trading, Manufacturing, Consulting",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Years in Business",
+              "placeholder": "e.g. 5",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Monthly Revenue",
+              "placeholder": "e.g. 150000",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Loan Amount Requested",
+              "placeholder": "e.g. 500000",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Purpose",
+              "placeholder": "e.g. Business expansion",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Email",
+              "placeholder": "e.g. john@company.com",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Country",
+              "placeholder": "e.g. India, USA, France",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Currency",
+              "fieldType": "dropdown",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "INR"
+                  },
+                  {
+                    "option": "USD"
+                  },
+                  {
+                    "option": "EUR"
+                  },
+                  {
+                    "option": "PLN"
+                  },
+                  {
+                    "option": "AED"
+                  }
+                ]
+              },
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "450188da-8b27-48d1-9de1-11d5e702da85",
+      "name": "On form submission",
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.2,
+      "position": [
+        -1040,
+        40
+      ],
+      "webhookId": "89807c53-640f-4db1-a366-5c61011140d2"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Applicant: {{ $('On form submission').item.json['Applicant Name'] }}\nCompany: {{ $('On form submission').item.json['Company Name'] }}\nBusiness Type: {{ $('On form submission').item.json['Business Type'] }}\nYears in Business: {{ $('On form submission').item.json['Years in Business'] }}\nMonthly Revenue: {{ $('On form submission').item.json['Monthly Revenue'] }}\nLoan Amount: {{ $('On form submission').item.json['Loan Amount Requested'] }}\nPurpose: {{ $('On form submission').item.json['Purpose'] }}\nCountry: {{ $('On form submission').item.json['Country'] }}\nCurrency: {{ $('On form submission').item.json['Currency'] }}\n",
+        "options": {
+          "systemMessage": "=You are a senior credit officer at FinServe lending company.\nGenerate a professional credit memo using ONLY the exact data provided.\nDo NOT invent names, companies, amounts or any financial figures.\nDo NOT use placeholder data like \"John Doe\" or \"XYZ Corporation\".\nUse EXACTLY the values given in the input message.\nIf any value is missing write \"Not provided\".\nDo NOT add markdown, backticks or extra formatting.\n\nCurrency and compliance rules by country:\n- India (INR): GST returns, ITR filing, MSME certificate if applicable\n- USA (USD): Federal tax returns 2 years, EIN verification, business license\n- Europe (EUR): VAT registration certificate, EU business license, IBAN details\n- Poland (PLN): NIP number verification, ZUS registration, VAT-7 declaration\n- Other countries: Standard KYC documents apply\n\nAlways use the exact currency provided in the input.\nAlways apply compliance rules based on the country provided.\nAlways mention currency symbol in all financial figures.\n\nUse this exact format:\n\nCREDIT MEMO\n===========\nDate: [today date dd-mm-yyyy]\nReference: CM-[4 random digits]\nCountry: [exact country from input]\nCurrency: [exact currency from input]\n\nAPPLICANT DETAILS:\nName: [exact name from input]\nCompany: [exact company from input]\nBusiness Type: [exact type from input]\nYears in Business: [exact years from input]\n\nFINANCIAL SUMMARY:\nLoan Requested: [currency symbol + exact amount from input]\nMonthly Revenue: [currency symbol + exact revenue from input]\nDebt Ratio: [calculate loan divided by monthly revenue]\nPurpose: [exact purpose from input]\n\nRISK ASSESSMENT:\nRisk Level: [LOW or MEDIUM or HIGH based on data]\nLead Score: [from input]\nKey Factors: [2-3 specific points based on given data only]\n\nRECOMMENDATION:\nDecision: APPROVE or REJECT or MORE_INFO_NEEDED\n\nIf Decision is APPROVE:\nConditions: [specific conditions based on loan amount and risk]\n\nIf Decision is REJECT:\nReason: [specific reason based on given data only]\nReapply After: 6 months\n\nIf Decision is MORE_INFO_NEEDED:\nRequired Documents:\n- [Country specific compliance document 1]\n- [Country specific compliance document 2]\n- [Based on business type - be specific]\n- [Based on loan amount - be specific]\n- [Based on risk level - be specific]\n\nCountry specific requirements:\nIndia: GST returns 2 years, ITR last 2 years, \n       MSME certificate if applicable,\n       6 months bank statements\n\nUSA: Federal tax returns 2 years,\n     EIN verification letter,\n     Business license copy,\n     6 months bank statements\n\nEurope/France: VAT registration certificate,\n               EU business license,\n               IBAN bank details,\n               6 months bank statements\n\nPoland: NIP number verification,\n        ZUS registration document,\n        VAT-7 declaration last 2 years,\n        6 months bank statements\n\nFollow up: Our credit team will contact \nwithin 3 business days.\n\nCredit Officer: FinServe AI System"
+        }
+      },
+      "id": "2053d535-2e5f-465b-a1c3-063f9f4190a6",
+      "name": "Credit Memo",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        -100,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Applicant: {{ $('Edit Fields').item.json.applicant_name }}\nCompany: {{ $('Edit Fields').item.json.company_name }}\nBusiness Type: {{ $('Edit Fields').item.json.business_type }}\nYears in Business: {{ $('Edit Fields').item.json.years_in_business }}\nMonthly Revenue: {{ $('Edit Fields').item.json.monthly_revenue }}\nLoan Amount: {{ $('Edit Fields').item.json.loan_amount }}\nPurpose: {{ $('Edit Fields').item.json.purpose }}\nCountry: {{ $('Edit Fields').item.json.country }}\nCurrency: {{ $('Edit Fields').item.json.currency }}",
+        "options": {
+          "systemMessage": "You are a financial analyst at FinServe lending company.\nAnalyze ONLY the exact data provided in the input.\nDo NOT invent, assume, or hallucinate any information.\nDo NOT use example data like \"John Doe\" or \"XYZ Corp\".\nUse ONLY the values given to you in the user message.\n\nReturn ONLY this exact JSON format, nothing else, no markdown, no backticks:\n{\n  \"score\": \"HIGH\" or \"MEDIUM\" or \"LOW\",\n  \"reason\": \"one line based on provided data only\",\n  \"risk_level\": \"LOW\" or \"MEDIUM\" or \"HIGH\",\n  \"recommendation\": \"PROCEED\" or \"REJECT\" or \"MORE_INFO\"\n}\n\nScoring Rules:\n- loan amount less than 3x monthly revenue = HIGH\n- loan amount 3 to 6x monthly revenue = MEDIUM\n- loan amount more than 6x monthly revenue = LOW\n- years in business more than 3 = positive signal\n- years in business less than 1 = negative signal"
+        }
+      },
+      "id": "13a8b2b0-678c-4937-a64f-826caad3ee10",
+      "name": "Lead Scoring",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        -460,
+        40
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Lead Scoring",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Lead Scoring",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Gmail",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Credit Memo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Credit Memo",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code1": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Approved",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Declined",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "More Info",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "More Info": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Declined": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Approved": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Credit Memo": {
+      "main": [
+        [
+          {
+            "node": "Code1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lead Scoring": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "3b05ee6b-f06a-4fc8-b812-80e31feefe60",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "3867f53c26efda1222850ed289620f9599d927781939dff79009781d273bdcb3"
+  },
+  "id": "oRU6vCgnltl6qwhx",
+  "tags": []
+}
