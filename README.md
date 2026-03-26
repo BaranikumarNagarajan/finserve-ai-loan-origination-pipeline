@@ -254,13 +254,6 @@ finserve-ai-loan-origination-pipeline/
 - No deduplication logic currently implemented
 - RAG/KYC policy check planned but not yet implemented
 
----
-
-## 👨‍💻 Author
-
-Built as part of a technical assessment for an AI Intern position at 10Clouds Financial Institutions.
-
----
 
 ## 📄 License
 
